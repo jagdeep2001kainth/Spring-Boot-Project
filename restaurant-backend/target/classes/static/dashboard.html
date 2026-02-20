@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaigrill Restaurant Dashboard</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            height: 100vh;
+            background: linear-gradient(135deg, #ff7e5f, #feb47b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            overflow: hidden;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            animation: fadeIn 2s ease;
+        }
+
+        h1 {
+            font-size: 4rem;
+            margin: 0 0 20px 0;
+            text-shadow: 3px 3px 8px rgba(0,0,0,0.5);
+        }
+
+        .login-btn {
+            padding: 15px 40px;
+            background: linear-gradient(to right, #ff416c, #ff4b2b);
+            color: white;
+            border: none;
+            font-size: 1.3rem;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            transition: transform 0.3s, background 0.3s;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-5px);
+            background: linear-gradient(to right, #ff4b2b, #ff416c);
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 3;
+        }
+
+        .dropdown button {
+            padding: 12px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .dropdown button:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="overlay"></div>
+
+<div class="container">
+    <h1>Gaigrill Restaurant Dashboard</h1>
+    <button class="login-btn" id="loginBtn">Login Portal</button>
+</div>
+
+<div class="dropdown" id="dropdownMenu">
+    <button onclick="showRolePopup('Admin')">Admin</button>
+    <button onclick="showRolePopup('Chef/Kitchen')">Chef/Kitchen</button>
+    <button onclick="showRolePopup('Manager')">Managers</button>
+    <button onclick="showRolePopup('Front Desk')">Front Desk</button>
+</div>
+
+<script>
+    document.getElementById('loginBtn').onclick = function() {
+        const dropdown = document.getElementById('dropdownMenu');
+        dropdown.style.display = dropdown.style.display === 'none' || dropdown.style.display === '' ? 'flex' : 'none';
+    };
+
+    function showRolePopup(role) {
+        let apiUrl = "";
+        if (role === 'Admin') apiUrl = '/api/dashboard/admins';
+        if (role === 'Chef/Kitchen') apiUrl = '/api/dashboard/chefs';
+        if (role === 'Manager') apiUrl = '/api/dashboard/managers';
+        if (role === 'Front Desk') apiUrl = '/api/dashboard/frontdesk';
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                let popup = document.createElement('div');
+                popup.style.position = 'fixed';
+                popup.style.top = '30%';
+                popup.style.left = '50%';
+                popup.style.transform = 'translateX(-50%)';
+                popup.style.backgroundColor = '#222';
+                popup.style.color = '#fff';
+                popup.style.padding = '25px';
+                popup.style.borderRadius = '12px';
+                popup.style.boxShadow = '0 0 20px rgba(0,0,0,0.6)';
+                popup.style.textAlign = 'center';
+                popup.style.zIndex = '9999';
+
+                data.forEach(person => {
+                    let button = document.createElement('button');
+                    button.innerText = `Hi ${person.name}!`;
+                    button.style.display = 'block';
+                    button.style.margin = '10px 0';
+                    button.style.padding = '10px 20px';
+                    button.style.borderRadius = '8px';
+                    button.style.background = 'linear-gradient(to right, #00c6ff, #0072ff)';
+                    button.style.color = '#fff';
+                    button.style.border = 'none';
+                    button.style.cursor = 'pointer';
+                    button.onclick = () => {
+                        window.location.href = `/login.html?userId=${person.employeeId}`;
+                    };
+                    popup.appendChild(button);
+                });
+
+                let closeBtn = document.createElement('button');
+                closeBtn.innerText = 'Close';
+                closeBtn.style.marginTop = '20px';
+                closeBtn.style.padding = '10px 20px';
+                closeBtn.style.borderRadius = '8px';
+                closeBtn.style.background = '#ff4b2b';
+                closeBtn.style.color = '#fff';
+                closeBtn.style.border = 'none';
+                closeBtn.style.cursor = 'pointer';
+                closeBtn.onclick = () => popup.remove();
+                popup.appendChild(closeBtn);
+
+                document.body.appendChild(popup);
+            })
+            .catch(() => alert('Failed to load data.'));
+    }
+</script>
+
+</body>
+</html>
